@@ -1,11 +1,13 @@
 # NNI-Anaylsis
-Group Project ID: 61 - Using an excel (data from World Bank) file that shows NNI (Net National Income) from 2007-16 per country , the user is able to run different types of analysis per country and per year.
+
+Group Project ID: 67 - Using an excel (data from World Bank) file that shows NNI (Net National Income) from 2007-16 per country, the user is able to run different types of analysis per country and per year.
 
 --------------------
 
 PROJECT DESCRIPTION
 
 --------------------
+
 This is a mandatory group project part of the course "Programming with Advanced Computer Languages" supervised by Dr. Mario Silic. 
 
 The group project was done individually by Adrien Fesselet (Student-ID: 14-605-521) with the pseudonym "Grimmgorthusgor" to accomplish tasks in the course.
@@ -45,3 +47,5 @@ To test the project: The excel file (NNI_Index.csv) and (AF_proj.py) have to be 
 Hope you will enjoy the coding experience :)
 
 Adrien Fesselet - Grimmgorthusgor
+
+Student-ID: 14-605-521
