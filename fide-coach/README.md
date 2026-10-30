@@ -12,7 +12,14 @@ A working prototype of the app recommended in [`market-analysis/swiss-app-opport
 - **Speaking test:** the AI examiner holds a fide-style conversation of up to 6 answers on an everyday Swiss topic, including a short role-play. The candidate types or dictates answers and can play the examiner's lines aloud.
 - **Writing task:** a short message task at the goal's writing level, with three content points.
 - **Feedback:** an estimated level against the target, 4 criteria scored out of 4, corrections with the changed words highlighted, useful phrases and a next step. Explanations come in 11 languages.
+- **Canton picker:** all 26 cantons. For now every canton gets the Canton of Zürich civics questions, with a note that its own questions are coming; federal questions apply everywhere.
+- **Civics quiz (Grundkenntnisse):** 10 random multiple-choice questions per round from a bank of 49 (federal, Canton of Zürich, municipality and daily life). Each answer comes with an explanation, and the AI can explain it again in the user's language. This works without the AI.
+- **Mock naturalisation interview:** the AI plays a member of a Zurich municipality's naturalisation committee. It asks a personal question, civics questions drawn from the bank, and a question about local life, then grades each civics answer against the bank's facts along with the applicant's German.
 - **History:** past sessions are saved on the device.
+
+### Civics question bank
+
+The questions are written for Passbereit, not copied from the canton's official list. They cover the topics of the Canton of Zürich knowledge test (Grundkenntnistest: 50 questions drawn from an official list of 350). Facts were checked against the federal and cantonal constitutions and zh.ch. Examples: Zurich has a 180-member Kantonsrat, 7 Regierungsrat members elected by the people, 6,000 signatures for a cantonal initiative and 3,000 for a referendum, and 12 districts. The interview AI may only ask about facts in the bank, so it cannot invent questions. Before launch, have a Zurich naturalisation officer or civics teacher review the bank, and add a "last checked" date.
 
 ## Name and logo
 

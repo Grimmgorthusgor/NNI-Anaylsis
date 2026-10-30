@@ -157,6 +157,25 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
 .history .lvl { font-family: var(--font-display); font-size: var(--step-1); align-self: center; grid-row: 1 / span 2; grid-column: 2; }
 .empty { color: var(--muted); }
 
+.group { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); padding-top: 20px; }
+.group-head { display: flex; flex-direction: column; gap: 4px; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option { text-align: left; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); padding: 12px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.option:disabled { cursor: default; opacity: 1; color: var(--ink); }
+.option.correct { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.option.wrong { border-color: var(--bad); box-shadow: inset 0 0 0 1px var(--bad); }
+.verdict { font-size: var(--step--1); font-weight: 700; white-space: nowrap; }
+.option.correct .verdict, .chip.ok { color: var(--good); border-color: var(--good); }
+.option.wrong .verdict, .chip.no { color: var(--bad); border-color: var(--bad); }
+.explain { border-left: 3px solid var(--brand); padding: 4px 0 4px 12px; display: flex; flex-direction: column; gap: 8px; }
+.explain .ai { color: var(--muted); }
+.linkish { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--accent); font-weight: 700; cursor: pointer; font-size: var(--step--1); }
+.score { font-family: var(--font-display); font-size: 3rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.know { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-top: 1px solid var(--line); min-width: 0; overflow-wrap: anywhere; }
+.know-head { display: flex; gap: 10px; align-items: baseline; }
+.chip { font-size: 0.75rem; font-weight: 700; border: 1px solid; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.know span.sub { font-size: var(--step--1); color: var(--muted); }
+
 @media (prefers-reduced-motion: no-preference) {
   .thinking { animation: pulse 1.4s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity: 0.45; } }
@@ -178,12 +197,12 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   <section class="view" id="view-home">
     <div class="field">
       <span class="label">Swiss citizenship · Einbürgerung</span>
-      <h1>Deutsch für die Einbürgerung</h1>
-      <p class="lede">Practise the German you need for a Swiss passport: B1 speaking and A2 writing, in the format of the fide test. An AI examiner talks with you about everyday life in Switzerland, then shows your estimated level and what to fix.</p>
+      <h1>Bereit für die Einbürgerung</h1>
+      <p class="lede">Practise both parts of becoming Swiss: the German language test (B1 speaking, A2 writing, in the fide format) and the civics knowledge test about Switzerland, your canton and your municipality.</p>
     </div>
 
     <div id="ai-missing" class="note alert" hidden>
-      <b>The AI examiner isn't available here.</b> Open this page in the Claude app or on claude.ai while signed in, and allow it to use Claude when asked.
+      <b>The AI examiner isn't available here.</b> Open this page in the Claude app or on claude.ai while signed in, and allow it to use Claude when asked. The civics quiz works without it.
     </div>
 
     <div class="field">
@@ -192,8 +211,9 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     </div>
 
     <div class="field">
-      <span class="label" id="topic-label">Topic</span>
-      <div class="topics" role="group" aria-labelledby="topic-label" id="topics"></div>
+      <label class="label" for="canton">Your canton</label>
+      <select id="canton"></select>
+      <p class="disclaimer" id="canton-note"></p>
     </div>
 
     <div class="field">
@@ -201,13 +221,34 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
       <select id="explain-lang"></select>
     </div>
 
-    <div class="actions">
-      <button type="button" class="btn wide" id="start-oral">Start speaking test</button>
-      <button type="button" class="btn secondary wide" id="start-written">Start writing task</button>
+    <div class="group">
+      <div class="group-head">
+        <h2>Sprache</h2>
+        <p class="lede">Language test practice in the fide format.</p>
+      </div>
+      <div class="field">
+        <span class="label" id="topic-label">Topic</span>
+        <div class="topics" role="group" aria-labelledby="topic-label" id="topics"></div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn wide" id="start-oral">Start speaking test</button>
+        <button type="button" class="btn secondary wide" id="start-written">Start writing task</button>
+      </div>
+      <div class="note">
+        <b>Answer by voice:</b> add a German keyboard (Settings → General → Keyboard → Keyboards), switch to it in the answer box, then tap the keyboard's microphone and speak.
+      </div>
     </div>
 
-    <div class="note">
-      <b>Answer by voice:</b> add a German keyboard (Settings → General → Keyboard → Keyboards), switch to it in the answer box, then tap the keyboard's microphone and speak.
+    <div class="group">
+      <div class="group-head">
+        <h2>Grundkenntnisse</h2>
+        <p class="lede">Civics: Switzerland, the canton and your municipality. Take a 10-question quiz, or practise the naturalisation interview with an AI committee member.</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn wide" id="start-quiz">Start civics quiz</button>
+        <button type="button" class="btn secondary wide" id="start-interview">Mock naturalisation interview</button>
+      </div>
+      <p class="disclaimer">Practice questions written for Passbereit on the topics of the Canton of Zürich knowledge test (Grundkenntnistest), which asks 50 questions from an official list of 350. For the official list and practice test, see <a href="https://www.zh.ch/de/migration-integration/einbuergerung/grundkenntnistest.html" target="_blank" rel="noopener">zh.ch</a>.</p>
     </div>
 
     <div class="example" aria-label="Example of feedback">
@@ -267,6 +308,15 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     <p class="note" id="written-error" hidden></p>
   </section>
 
+  <!-- Civics quiz -->
+  <section class="view" id="view-quiz" hidden>
+    <div class="session-head">
+      <h2>Grundkenntnisse · Zürich</h2>
+      <span class="pill" id="quiz-count">Frage 1 von 10</span>
+    </div>
+    <div class="block" id="quiz-body"></div>
+  </section>
+
   <!-- Feedback -->
   <section class="view" id="view-feedback" hidden>
     <div class="result" id="result"></div>
@@ -307,6 +357,67 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     { id: "unterwegs", de: "Unterwegs", en: "Getting around", seed: "SBB, Halbtax, Billett, Verspätung, Bus und Tram, Velo" },
     { id: "freizeit", de: "Freizeit", en: "Free time", seed: "Verein, Hobbys, Wochenende, Feste, Wandern, Nachbarschaft" },
   ];
+  // Civics practice bank: Bund, Kanton Zürich, Gemeinde. Written for Passbereit, checked against official sources.
+  const CANTONS = [
+    ["AG", "Aargau"], ["AI", "Appenzell Innerrhoden"], ["AR", "Appenzell Ausserrhoden"], ["BE", "Bern"], ["BL", "Basel-Landschaft"],
+    ["BS", "Basel-Stadt"], ["FR", "Freiburg"], ["GE", "Genf"], ["GL", "Glarus"], ["GR", "Graubünden"], ["JU", "Jura"],
+    ["LU", "Luzern"], ["NE", "Neuenburg"], ["NW", "Nidwalden"], ["OW", "Obwalden"], ["SG", "St. Gallen"], ["SH", "Schaffhausen"],
+    ["SO", "Solothurn"], ["SZ", "Schwyz"], ["TG", "Thurgau"], ["TI", "Tessin"], ["UR", "Uri"], ["VD", "Waadt"], ["VS", "Wallis"],
+    ["ZG", "Zug"], ["ZH", "Zürich"],
+  ];
+  const CATEGORY = { bund: "Schweiz (Bund)", zh: "Kanton Zürich", gemeinde: "Gemeinde & Alltag" };
+  const CIVICS = [
+    { c: "bund", q: "Wie viele Kantone hat die Schweiz?", o: ["20", "23", "26", "28"], a: 2, e: "Die Schweiz hat 26 Kantone. Sechs davon, zum Beispiel Basel-Stadt und Basel-Landschaft, hatten früher den Namen Halbkantone." },
+    { c: "bund", q: "Wie viele Mitglieder hat der Bundesrat?", o: ["5", "7", "9", "12"], a: 1, e: "Der Bundesrat ist die Regierung der Schweiz. Er hat sieben Mitglieder; jedes leitet ein Departement." },
+    { c: "bund", q: "Wer wählt die Mitglieder des Bundesrats?", o: ["Das Volk", "Die Vereinigte Bundesversammlung", "Die Kantonsregierungen", "Das Bundesgericht"], a: 1, e: "Nationalrat und Ständerat wählen den Bundesrat gemeinsam als Vereinigte Bundesversammlung, für vier Jahre." },
+    { c: "bund", q: "Aus welchen zwei Kammern besteht das Bundesparlament?", o: ["Nationalrat und Ständerat", "Bundesrat und Nationalrat", "Kantonsrat und Ständerat", "Bundesrat und Bundesgericht"], a: 0, e: "Das Parlament heisst Bundesversammlung. Der Nationalrat vertritt das Volk, der Ständerat die Kantone." },
+    { c: "bund", q: "Wie viele Mitglieder hat der Nationalrat?", o: ["46", "100", "200", "246"], a: 2, e: "Der Nationalrat hat 200 Mitglieder. Die Sitze werden nach der Bevölkerungszahl auf die Kantone verteilt." },
+    { c: "bund", q: "Wie viele Mitglieder hat der Ständerat?", o: ["26", "46", "52", "200"], a: 1, e: "Der Ständerat hat 46 Mitglieder: zwei pro Kanton, und je eines für die sechs früheren Halbkantone." },
+    { c: "bund", q: "Wie viele Sitze hat der Kanton Zürich im Ständerat?", o: ["1", "2", "4", "36"], a: 1, e: "Jeder Kanton hat im Ständerat gleich viele Sitze, unabhängig von seiner Grösse. Zürich hat zwei." },
+    { c: "bund", q: "Wie oft wird der Nationalrat gewählt?", o: ["Jedes Jahr", "Alle zwei Jahre", "Alle vier Jahre", "Alle sechs Jahre"], a: 2, e: "Die Wahlen in den Nationalrat finden alle vier Jahre statt." },
+    { c: "bund", q: "Wie viele Unterschriften braucht eine eidgenössische Volksinitiative?", o: ["6000", "50 000", "100 000", "200 000"], a: 2, e: "Für eine Volksinitiative braucht es 100 000 Unterschriften, gesammelt innerhalb von 18 Monaten. Damit kann man eine Änderung der Bundesverfassung verlangen." },
+    { c: "bund", q: "Wie viele Unterschriften braucht ein fakultatives Referendum gegen ein Bundesgesetz?", o: ["5000", "50 000", "100 000", "500 000"], a: 1, e: "Mit 50 000 Unterschriften innerhalb von 100 Tagen kann das Volk eine Abstimmung über ein neues Bundesgesetz verlangen. Auch acht Kantone können das Referendum ergreifen." },
+    { c: "bund", q: "Was braucht eine Änderung der Bundesverfassung, um angenommen zu werden?", o: ["Die Mehrheit des Volkes und der Kantone", "Nur die Zustimmung des Bundesrats", "Nur die Mehrheit im Parlament", "Die Mehrheit der Gemeinden"], a: 0, e: "Verfassungsänderungen kommen immer vors Volk. Sie brauchen das doppelte Mehr: die Mehrheit der Stimmenden (Volksmehr) und die Mehrheit der Kantone (Ständemehr)." },
+    { c: "bund", q: "In welcher Stadt haben Bundesrat und Bundesparlament ihren Sitz?", o: ["Zürich", "Genf", "Bern", "Luzern"], a: 2, e: "Bern ist die Bundesstadt. Dort stehen das Bundeshaus und die Verwaltung des Bundes." },
+    { c: "bund", q: "Wo hat das Bundesgericht, das höchste Gericht der Schweiz, seinen Hauptsitz?", o: ["Bern", "Lausanne", "Zürich", "Basel"], a: 1, e: "Das Bundesgericht hat seinen Hauptsitz in Lausanne. Zwei Abteilungen arbeiten in Luzern." },
+    { c: "bund", q: "Wie viele Landessprachen hat die Schweiz?", o: ["2", "3", "4", "5"], a: 2, e: "Die vier Landessprachen sind Deutsch, Französisch, Italienisch und Rätoromanisch." },
+    { c: "bund", q: "Wann ist der Schweizer Nationalfeiertag?", o: ["1. Mai", "1. August", "12. September", "6. Dezember"], a: 1, e: "Am 1. August erinnert die Schweiz an den Bundesbrief von 1291." },
+    { c: "bund", q: "In welchem Jahr wurde der moderne Schweizer Bundesstaat gegründet?", o: ["1291", "1515", "1848", "1971"], a: 2, e: "1848 erhielt die Schweiz ihre erste Bundesverfassung und wurde ein Bundesstaat." },
+    { c: "bund", q: "Seit wann dürfen Frauen auf Bundesebene wählen und abstimmen?", o: ["1848", "1919", "1971", "1991"], a: 2, e: "Das Frauenstimmrecht auf Bundesebene wurde 1971 eingeführt." },
+    { c: "bund", q: "Ab welchem Alter dürfen Schweizerinnen und Schweizer auf Bundesebene wählen und abstimmen?", o: ["16", "18", "20", "21"], a: 1, e: "Auf Bundesebene gilt das Stimm- und Wahlrecht ab 18 Jahren." },
+    { c: "bund", q: "Welche drei politischen Ebenen gibt es in der Schweiz?", o: ["Bund, Kantone, Gemeinden", "Bund, Bezirke, Städte", "Europa, Bund, Kantone", "Regierung, Parlament, Gericht"], a: 0, e: "Die Schweiz ist föderalistisch: Bund, Kantone und Gemeinden haben je eigene Aufgaben." },
+    { c: "bund", q: "Welche Behörde ist die Regierung (Exekutive) des Bundes?", o: ["Der Bundesrat", "Der Nationalrat", "Der Ständerat", "Das Bundesgericht"], a: 0, e: "Gewaltenteilung: Die Bundesversammlung macht die Gesetze, der Bundesrat regiert, das Bundesgericht spricht Recht." },
+    { c: "bund", q: "Wer ist Bundespräsidentin oder Bundespräsident?", o: ["Ein Mitglied des Bundesrats, jeweils für ein Jahr", "Eine Person, die das Volk für vier Jahre wählt", "Die Präsidentin oder der Präsident des Nationalrats", "Die Präsidentin oder der Präsident des Bundesgerichts"], a: 0, e: "Das Amt wechselt jedes Jahr unter den sieben Bundesratsmitgliedern. Die Person leitet die Sitzungen und vertritt die Schweiz." },
+    { c: "bund", q: "Seit welchem Jahr ist die Schweiz Mitglied der UNO?", o: ["1945", "1992", "2002", "2010"], a: 2, e: "Das Volk hat 2002 dem Beitritt zur UNO zugestimmt." },
+    { c: "bund", q: "Ist die Schweiz Mitglied der Europäischen Union (EU)?", o: ["Ja, seit 1992", "Nein, aber sie hat bilaterale Verträge mit der EU", "Ja, seit 2002", "Nein, und es gibt keine Verträge mit der EU"], a: 1, e: "Die Schweiz ist nicht in der EU. Ihre Beziehungen regeln bilaterale Verträge, zum Beispiel die Personenfreizügigkeit und Schengen." },
+    { c: "bund", q: "Was bedeutet die Neutralität der Schweiz?", o: ["Sie beteiligt sich nicht an Kriegen zwischen anderen Staaten", "Sie hat keine Armee", "Sie hat keine Beziehungen zu anderen Ländern", "Sie stimmt nie über Aussenpolitik ab"], a: 0, e: "Die Schweiz ist neutral, hat aber eine eigene Armee zur Verteidigung." },
+    { c: "bund", q: "Was ist die AHV?", o: ["Die Alters- und Hinterlassenenversicherung (1. Säule)", "Eine private Krankenkasse", "Die Arbeitslosenversicherung", "Eine Steuer auf Benzin"], a: 0, e: "Die Altersvorsorge hat drei Säulen: AHV (staatlich), berufliche Vorsorge/Pensionskasse und private Vorsorge." },
+    { c: "bund", q: "Wer muss in der Schweiz eine Krankenversicherung (Grundversicherung) haben?", o: ["Alle Personen mit Wohnsitz in der Schweiz", "Nur Schweizer Bürgerinnen und Bürger", "Nur Personen mit Arbeitsstelle", "Niemand, sie ist freiwillig"], a: 0, e: "Die Grundversicherung ist obligatorisch. Neu Zugezogene müssen sich innerhalb von drei Monaten versichern; die Krankenkasse kann man frei wählen." },
+    { c: "bund", q: "Wie heisst der höchste Berg der Schweiz?", o: ["Matterhorn", "Eiger", "Dufourspitze", "Jungfrau"], a: 2, e: "Die Dufourspitze im Monte-Rosa-Massiv (Wallis) ist 4634 Meter hoch." },
+
+    { c: "zh", q: "Wie heisst das Parlament des Kantons Zürich?", o: ["Grosser Rat", "Kantonsrat", "Landrat", "Gemeinderat"], a: 1, e: "Das Zürcher Kantonsparlament heisst Kantonsrat. In anderen Kantonen heisst es zum Beispiel Grosser Rat oder Landrat." },
+    { c: "zh", q: "Wie viele Mitglieder hat der Zürcher Kantonsrat?", o: ["100", "120", "180", "200"], a: 2, e: "Der Kantonsrat hat 180 Mitglieder. Das Volk wählt sie alle vier Jahre." },
+    { c: "zh", q: "Wie heisst die Regierung des Kantons Zürich?", o: ["Bundesrat", "Stadtrat", "Regierungsrat", "Ständerat"], a: 2, e: "Der Regierungsrat hat sieben Mitglieder. Jedes Jahr ist eines davon Regierungspräsidentin oder Regierungspräsident." },
+    { c: "zh", q: "Wer wählt den Zürcher Regierungsrat?", o: ["Das Volk", "Der Kantonsrat", "Der Bundesrat", "Die Gemeindepräsidien"], a: 0, e: "Die Stimmberechtigten wählen die sieben Regierungsrätinnen und Regierungsräte direkt, für vier Jahre." },
+    { c: "zh", q: "Wie viele Unterschriften braucht eine kantonale Volksinitiative im Kanton Zürich?", o: ["3000", "6000", "50 000", "100 000"], a: 1, e: "Mit 6000 Unterschriften von Stimmberechtigten kann man im Kanton Zürich eine Volksabstimmung über ein Anliegen verlangen." },
+    { c: "zh", q: "Mit wie vielen Unterschriften kann man im Kanton Zürich das Referendum gegen einen Beschluss des Kantonsrats ergreifen?", o: ["3000", "6000", "10 000", "50 000"], a: 0, e: "Mit 3000 Unterschriften erreichen die Stimmberechtigten, dass das Volk über den Beschluss des Kantonsrats abstimmt." },
+    { c: "zh", q: "In welchem Jahr trat Zürich der Eidgenossenschaft bei?", o: ["1291", "1351", "1515", "1848"], a: 1, e: "Zürich trat 1351 als fünfter Ort dem Bund der Eidgenossen bei." },
+    { c: "zh", q: "In wie viele Bezirke ist der Kanton Zürich eingeteilt?", o: ["6", "12", "26", "160"], a: 1, e: "Der Kanton Zürich hat 12 Bezirke. Darin liegen rund 160 politische Gemeinden." },
+    { c: "zh", q: "Welcher Reformator predigte ab 1519 am Grossmünster in Zürich?", o: ["Martin Luther", "Johannes Calvin", "Huldrych Zwingli", "Heinrich Pestalozzi"], a: 2, e: "Mit Huldrych Zwingli wurde Zürich ein Zentrum der Reformation." },
+    { c: "zh", q: "Was passiert am Zürcher Sechseläuten?", o: ["Der Böögg, ein Schneemann, wird verbrannt", "Es findet ein Schwingfest statt", "Es gibt ein Skirennen auf dem Uetliberg", "Die Kantonsratswahlen finden statt"], a: 0, e: "Das Sechseläuten ist das Frühlingsfest der Zünfte im April. Nach einem Umzug wird der Böögg verbrannt; er steht für den Winter." },
+    { c: "zh", q: "Welches ist die zweitgrösste Stadt im Kanton Zürich?", o: ["Uster", "Winterthur", "Dübendorf", "Dietikon"], a: 1, e: "Nach der Stadt Zürich ist Winterthur die grösste Stadt im Kanton." },
+    { c: "zh", q: "Welcher Fluss fliesst aus dem Zürichsee durch die Stadt Zürich?", o: ["Aare", "Limmat", "Rhein", "Reuss"], a: 1, e: "Die Limmat fliesst aus dem Zürichsee. In der Stadt Zürich fliesst die Sihl in die Limmat." },
+    { c: "zh", q: "Wie sieht das Wappen des Kantons Zürich aus?", o: ["Schräg geteilt in Weiss und Blau", "Rot mit weissem Kreuz", "Schwarzer Bär auf Gelb und Rot", "Grün mit weissem Stern"], a: 0, e: "Das Zürcher Wappen ist schräg geteilt: oben weiss, unten blau." },
+    { c: "zh", q: "Welcher Kanton hat die meisten Einwohnerinnen und Einwohner?", o: ["Bern", "Waadt", "Zürich", "Genf"], a: 2, e: "Der Kanton Zürich ist der bevölkerungsreichste Kanton der Schweiz." },
+    { c: "zh", q: "In welcher Gemeinde liegt der Flughafen Zürich zum grössten Teil?", o: ["Kloten", "Winterthur", "Uster", "Horgen"], a: 0, e: "Der Flughafen Zürich, der grösste der Schweiz, liegt zum grössten Teil auf dem Gebiet der Gemeinde Kloten." },
+    { c: "zh", q: "Welche Amtssprache hat der Kanton Zürich?", o: ["Deutsch", "Deutsch und Französisch", "Deutsch und Englisch", "Deutsch und Italienisch"], a: 0, e: "Amtssprache im Kanton Zürich ist Deutsch." },
+
+    { c: "gemeinde", q: "Wo entscheiden in kleineren Zürcher Gemeinden die Stimmberechtigten direkt über das Budget?", o: ["An der Gemeindeversammlung", "Im Kantonsrat", "Im Nationalrat", "Beim Bezirksgericht"], a: 0, e: "In vielen Gemeinden entscheidet die Gemeindeversammlung. Grössere Gemeinden wie Zürich oder Winterthur haben stattdessen ein Gemeindeparlament." },
+    { c: "gemeinde", q: "Wie heisst die Exekutive (Regierung) einer politischen Gemeinde im Kanton Zürich?", o: ["Gemeinderat, in Städten oft Stadtrat", "Kantonsrat", "Ständerat", "Regierungsrat"], a: 0, e: "Achtung: In der Stadt Zürich heisst die Regierung Stadtrat, und das Stadtparlament heisst Gemeinderat." },
+    { c: "gemeinde", q: "Wo melden Sie sich an, wenn Sie in eine neue Gemeinde ziehen?", o: ["Bei der Einwohnerkontrolle der Gemeinde", "Beim Bundesrat", "Bei der Post", "Bei der Krankenkasse"], a: 0, e: "Nach einem Umzug muss man sich bei der Einwohnerkontrolle (Einwohneramt) der neuen Gemeinde anmelden, in der Regel innerhalb von 14 Tagen." },
+    { c: "gemeinde", q: "Was ist ein Gebührensack?", o: ["Ein offizieller Abfallsack; im Preis ist die Gebühr für die Entsorgung enthalten", "Ein Sack für Altpapier", "Eine Steuer für Hundebesitzer", "Ein Geschenk der Gemeinde für Neuzugezogene"], a: 0, e: "Viele Gemeinden finanzieren die Abfallentsorgung über Gebührensäcke oder Gebührenmarken: Wer mehr Abfall produziert, bezahlt mehr." },
+    { c: "gemeinde", q: "Wie lange dauert der obligatorische Kindergarten im Kanton Zürich?", o: ["1 Jahr", "2 Jahre", "3 Jahre", "Er ist freiwillig"], a: 1, e: "Im Kanton Zürich dauert der obligatorische Kindergarten zwei Jahre, meistens ab etwa vier Jahren." },
+  ];
   const LANGS = ["English", "Français", "Italiano", "Português", "Español", "Shqip", "Türkçe", "Українська", "العربية", "Tigrinya (ትግርኛ)", "Deutsch (einfach)"];
   const MAX_ANSWERS = 6;
   const MIN_ANSWERS = 2;
@@ -323,6 +434,9 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     level: LEVELS.some((l) => l.id === prefs.level) ? prefs.level : "citizenship",
     topic: TOPICS.some((t) => t.id === prefs.topic) ? prefs.topic : "wohnen",
     lang: LANGS.includes(prefs.lang) ? prefs.lang : "English",
+    canton: CANTONS.some(([code]) => code === prefs.canton) ? prefs.canton : "ZH",
+    quiz: null,
+    facts: [],
     mode: null,
     turns: [],
     answers: 0,
@@ -336,10 +450,12 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   const topic = () => TOPICS.find((t) => t.id === state.topic);
   const goal = () => LEVELS.find((l) => l.id === state.level) || LEVELS[0];
   const cefr = () => (state.mode === "written" ? goal().written : goal().oral);
-  const savePrefs = () => store.set("sp-prefs", { level: state.level, topic: state.topic, lang: state.lang });
+  const savePrefs = () => store.set("sp-prefs", { level: state.level, topic: state.topic, lang: state.lang, canton: state.canton });
+  const isTalk = () => state.mode === "oral" || state.mode === "interview";
+  const MODE_LABEL = { oral: "Speaking", written: "Writing", interview: "Interview", civics: "Civics quiz" };
 
   // ---------- Views ----------
-  const VIEWS = ["home", "oral", "written", "feedback", "history"];
+  const VIEWS = ["home", "oral", "written", "quiz", "feedback", "history"];
   function show(name) {
     for (const v of VIEWS) $("view-" + v).hidden = v !== name;
     $("nav-home").setAttribute("aria-current", name === "history" ? "false" : "page");
@@ -375,6 +491,16 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
       b.onclick = () => { state.topic = t.id; savePrefs(); renderHome(); };
       return b;
     }));
+    const canton = $("canton");
+    if (!canton.options.length) {
+      for (const [code, name] of CANTONS) canton.add(new Option(name, code));
+      canton.onchange = () => { state.canton = canton.value; savePrefs(); renderHome(); };
+    }
+    canton.value = state.canton;
+    const cantonName = CANTONS.find(([code]) => code === state.canton)[1];
+    $("canton-note").textContent = state.canton === "ZH"
+      ? "Civics questions are based on the Canton of Zürich."
+      : `Civics questions for ${cantonName} are coming soon. Until then you'll practise with Canton of Zürich questions; the federal questions apply in every canton. Language requirements can also differ by canton.`;
     const sel = $("explain-lang");
     if (!sel.options.length) {
       for (const l of LANGS) sel.add(new Option(l, l));
@@ -387,6 +513,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     $("ai-missing").hidden = ok;
     $("start-oral").disabled = !ok;
     $("start-written").disabled = !ok;
+    $("start-interview").disabled = !ok;
   }
 
   // ---------- Errors ----------
@@ -423,7 +550,31 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   }
 
   // ---------- Speaking test ----------
+  function shuffle(list) {
+    const a = list.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+  const factLine = (item) => `- ${item.q} Answer: ${item.o[item.a]}. (${item.e})`;
+
+  function interviewRules() {
+    return [
+      "You are a member of the naturalisation committee (Einbürgerungskommission) of a municipality in the Canton of Zürich, holding a practice naturalisation interview (Einbürgerungsgespräch) in German with an adult applicant.",
+      `Language level of the applicant: ${cefr()}. Match your language to it: ${LEVEL_HINT[cefr()]}.`,
+      "Plan for about 6 questions: first a short personal question (for example why they want to become Swiss or how long they have lived in Switzerland), then civics questions taken ONLY from the list below (rephrase naturally, one per turn), and near the end one question about local life (clubs, neighbours, what they like about their municipality).",
+      "Civics facts you may ask about. Never ask about anything else, never reveal the answers and never say whether an answer was right:",
+      ...state.facts.map(factLine),
+      "Rules:",
+      "- Speak only Standard German with Swiss spelling: always 'ss', never 'ß'. Use 'Sie'. Be friendly and neutral, like a real committee member.",
+      "- Each turn: at most a very short neutral acknowledgement (for example 'Danke.') and exactly one question. Never more than 30 words.",
+      "- If the applicant does not understand or answers in another language, rephrase more simply in German.",
+      "- Answers are typed or dictated: ignore spelling and punctuation.",
+      "- Reply with your spoken words only: no labels, no quotation marks, no stage directions.",
+    ].join("\n");
+  }
+
   function oralRules() {
+    if (state.mode === "interview") return interviewRules();
     const t = topic();
     return [
       `You are role-playing the examiner in the oral part of the Swiss fide language test (German). The candidate is an adult immigrant living in Switzerland, practising for level ${cefr()}.`,
@@ -444,7 +595,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     wrap.className = "msg " + (role === "assistant" ? "examiner" : "you");
     const who = document.createElement("span");
     who.className = "who";
-    who.textContent = role === "assistant" ? "Examiner" : "You";
+    who.textContent = role === "assistant" ? (state.mode === "interview" ? "Committee" : "Examiner") : "You";
     const bubble = document.createElement("div");
     bubble.className = "bubble";
     bubble.lang = "de";
@@ -523,16 +674,17 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     return false;
   }
 
-  function startOral() {
+  function startOral(kind = "oral") {
     if (!aiReady()) return;
-    state.mode = "oral";
+    state.mode = kind;
+    if (kind === "interview") state.facts = shuffle(CIVICS).slice(0, 6);
     $("retry-oral").hidden = true;
     $("oral-error").hidden = true;
     state.answers = 0;
     $("chat").replaceChildren();
     $("answer").value = "";
-    $("oral-title").textContent = `Mündlich · ${topic().de}`;
-    state.turns = [{ role: "user", content: oralRules() + "\n\nStart now: greet the candidate briefly and ask the first question." }];
+    $("oral-title").textContent = kind === "interview" ? "Einbürgerungsgespräch" : `Mündlich · ${topic().de}`;
+    state.turns = [{ role: "user", content: oralRules() + "\n\nStart now: greet the applicant briefly and ask the first question." }];
     show("oral");
     examinerTurn();
   }
@@ -623,6 +775,26 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   function feedbackPrompt() {
     const t = topic();
     const shape = `{"level": "below A1" | "A1" | "A2" | "B1", "summary": "2 sentences", "criteria": [{"name": "criterion name", "score": 1-4, "comment": "one sentence"}], "corrections": [{"original": "the candidate's sentence, quoted exactly", "corrected": "the corrected German sentence", "changed": "only the words you changed, as they appear in corrected", "why": "short reason"}], "phrases": [{"de": "useful German phrase for this topic", "meaning": "translation"}], "next_step": "one concrete exercise for next time"}`;
+    if (state.mode === "interview") {
+      return [
+        `Assess a practice naturalisation interview (Canton of Zürich) held in German. Target language level: ${cefr()}.`,
+        "Assess two things, using ONLY the applicant's lines:",
+        "1. Civics knowledge: for every civics question the committee asked, compare the applicant's answer with the reference facts below. Count an answer as correct when the key fact is right, even if the German is imperfect.",
+        "2. Language: CEFR level of spoken interaction and production (A1, A2, B1). Be honest and slightly conservative: this is practice, not an official result. Ignore spelling and punctuation (answers were typed or dictated).",
+        "Use exactly 4 criteria: civics knowledge, task fulfilment, vocabulary and grammar, interaction.",
+        `Write the summary, criteria names, comments, notes, reasons, meanings and next step in ${state.lang}. Keep German sentences in German.`,
+        "Give up to 4 language corrections (an empty list if there were no real errors) and 4 useful phrases for the interview.",
+        "",
+        "Reference facts:",
+        ...state.facts.map(factLine),
+        "",
+        "Transcript (Examiner = committee member, Candidate = applicant):",
+        transcript(),
+        "",
+        "Reply with only JSON of this shape:",
+        shape.slice(0, -1) + `, "knowledge": [{"question": "the civics question as asked, in German", "ok": true or false, "answer": "the correct answer, short, in German", "note": "one sentence in ${state.lang}"}]}`,
+      ].join("\n");
+    }
     if (state.mode === "oral") {
       return [
         `Assess a practice conversation for the oral part of the Swiss fide test (German). Target level: ${cefr()}. Topic: ${t.de}.`,
@@ -663,13 +835,13 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   async function getFeedback() {
     if (state.busy) return;
     state.busy = true;
-    const errBox = state.mode === "oral" ? $("oral-error") : $("written-error");
+    const errBox = isTalk() ? $("oral-error") : $("written-error");
     errBox.hidden = true;
-    const btn = state.mode === "oral" ? $("end-oral") : $("submit-text");
+    const btn = isTalk() ? $("end-oral") : $("submit-text");
     const label = btn.textContent;
     btn.disabled = true;
     btn.textContent = "Assessing …";
-    if (state.mode === "oral") { $("send").disabled = true; $("answer").disabled = true; }
+    if (isTalk()) { $("send").disabled = true; $("answer").disabled = true; }
     try {
       const fb = await sample.json(feedbackPrompt(), { cache: false });
       if (!fb || !RUNGS.includes(fb.level)) throw { code: "invalid_json" };
@@ -682,7 +854,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     } finally {
       state.busy = false;
       btn.textContent = label;
-      if (state.mode === "oral") updateOralUi(); else updateWrittenUi();
+      if (isTalk()) updateOralUi(); else updateWrittenUi();
     }
   }
 
@@ -707,7 +879,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     const out = $("result");
     const head = el("div", "block");
     head.append(
-      el("span", "label", `${state.mode === "oral" ? "Speaking" : "Writing"} · ${t.de} · target ${cefr()}`),
+      el("span", "label", `${MODE_LABEL[state.mode]} · ${state.mode === "interview" ? "Kanton Zürich" : t.de} · target ${cefr()}`),
       el("h2", null, `Estimated level: ${fb.level}`),
     );
     const ladder = el("div", "ladder");
@@ -720,6 +892,26 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     head.append(ladder, key);
     if (fb.summary) head.append(el("p", null, fb.summary));
     out.replaceChildren(head);
+
+    const known = Array.isArray(fb.knowledge) ? fb.knowledge.filter((k) => k && k.question) : [];
+    if (state.mode === "interview" && known.length) {
+      const b = el("div", "block");
+      const right = known.filter((k) => k.ok === true).length;
+      b.append(el("h3", null, `Civics answers: ${right} of ${known.length} correct`));
+      for (const k of known.slice(0, 8)) {
+        const row = el("div", "know");
+        const head = el("div", "know-head");
+        const q = el("b", null, k.question);
+        q.lang = "de";
+        head.append(el("span", "chip " + (k.ok === true ? "ok" : "no"), k.ok === true ? "Correct" : "Not quite"), q);
+        const ans = el("span", null, "Answer: " + (k.answer || ""));
+        ans.lang = "de";
+        row.append(head, ans);
+        if (k.note) row.append(el("span", "sub", k.note));
+        b.append(row);
+      }
+      out.append(b);
+    }
 
     if (Array.isArray(fb.criteria) && fb.criteria.length) {
       const b = el("div", "block");
@@ -772,6 +964,127 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     out.append(el("p", "disclaimer", "Practice estimate generated by AI. It is not an official fide result."));
   }
 
+  // ---------- Civics quiz ----------
+  const QUIZ_LEN = 10;
+  function startQuiz() {
+    state.mode = "civics";
+    state.quiz = { items: shuffle(CIVICS).slice(0, QUIZ_LEN), i: 0, right: 0, missed: [] };
+    show("quiz");
+    renderQuizQuestion();
+  }
+
+  function renderQuizQuestion() {
+    const qz = state.quiz;
+    const item = qz.items[qz.i];
+    $("quiz-count").textContent = `Frage ${qz.i + 1} von ${qz.items.length}`;
+    const body = $("quiz-body");
+    const q = el("h3", null, item.q);
+    q.lang = "de";
+    const opts = el("div", "options");
+    const order = shuffle(item.o.map((text, idx) => ({ text, idx })));
+    const explain = el("div", "explain");
+    explain.hidden = true;
+    const next = el("button", "btn", qz.i + 1 < qz.items.length ? "Nächste Frage" : "Resultat anzeigen");
+    next.type = "button";
+    next.hidden = true;
+    next.onclick = () => { qz.i += 1; if (qz.i < qz.items.length) renderQuizQuestion(); else renderQuizResult(); };
+    const buttons = order.map(({ text, idx }) => {
+      const b = el("button", "option");
+      b.type = "button";
+      const label = el("span", null, text);
+      label.lang = "de";
+      const verdict = el("span", "verdict");
+      b.append(label, verdict);
+      b.onclick = () => {
+        const ok = idx === item.a;
+        if (ok) qz.right += 1; else qz.missed.push(item);
+        for (const other of buttons) other.disabled = true;
+        b.classList.add(ok ? "correct" : "wrong");
+        verdict.textContent = ok ? "Richtig" : "Falsch";
+        if (!ok) {
+          const good = buttons[order.findIndex((x) => x.idx === item.a)];
+          good.classList.add("correct");
+          good.querySelector(".verdict").textContent = "Richtige Antwort";
+        }
+        showExplanation(explain, item);
+        next.hidden = false;
+        next.focus({ preventScroll: true });
+      };
+      opts.append(b);
+      return b;
+    });
+    body.replaceChildren(el("span", "tag", CATEGORY[item.c]), q, opts, explain, next);
+    window.scrollTo({ top: 0 });
+  }
+
+  function showExplanation(box, item) {
+    const p = el("p", null, item.e);
+    p.lang = "de";
+    box.replaceChildren(p);
+    box.hidden = false;
+    if (!sample || state.lang.startsWith("Deutsch")) return;
+    const ask = el("button", "linkish", `Explain in ${state.lang}`);
+    ask.type = "button";
+    ask.onclick = async () => {
+      ask.disabled = true;
+      const out = el("p", "ai thinking", "Thinking …");
+      ask.replaceWith(out);
+      try {
+        const { text } = await sample([
+          `Someone preparing for the Swiss naturalisation knowledge test (Canton of Zürich) answered this practice question. Explain the correct answer in ${state.lang} in 2 to 4 short, simple sentences. Use only the facts given here; do not add other numbers, dates or facts. Keep German proper names in German.`,
+          `Question: ${item.q}`,
+          `Correct answer: ${item.o[item.a]}`,
+          `Fact: ${item.e}`,
+        ].join("\n"), { modelTier: "quick", onText: ({ text }) => { out.classList.remove("thinking"); out.textContent = text; } });
+        out.classList.remove("thinking");
+        out.textContent = text.trim();
+      } catch (e) {
+        out.classList.remove("thinking");
+        out.textContent = errorCopy(e);
+      }
+    };
+    box.append(ask);
+  }
+
+  function renderQuizResult() {
+    const qz = state.quiz;
+    $("quiz-count").textContent = "Resultat";
+    const head = el("div", "block");
+    head.append(el("span", "label", "Civics quiz · Kanton Zürich"), el("span", "score", `${qz.right}/${qz.items.length}`),
+      el("p", null, qz.missed.length ? "Review the questions you missed, then try a new round." : "All correct. Try a new round with different questions."));
+    const parts = [head];
+    if (qz.missed.length) {
+      const b = el("div", "block");
+      b.append(el("h3", null, "To review"));
+      for (const item of qz.missed) {
+        const row = el("div", "know");
+        const q = el("b", null, item.q);
+        q.lang = "de";
+        const a = el("span", null, "Richtig: " + item.o[item.a]);
+        a.lang = "de";
+        const e = el("span", "sub", item.e);
+        e.lang = "de";
+        row.append(q, a, e);
+        b.append(row);
+      }
+      parts.push(b);
+    }
+    const actions = el("div", "actions");
+    const again = el("button", "btn wide", "New round");
+    again.type = "button";
+    again.onclick = startQuiz;
+    const home = el("button", "btn ghost wide", "Back to start");
+    home.type = "button";
+    home.onclick = () => show("home");
+    actions.append(again, home);
+    parts.push(actions, el("p", "disclaimer", "Practice questions written for Passbereit. The official test uses its own questions; check the canton's question list on zh.ch."));
+    $("quiz-body").replaceChildren(...parts);
+    const list = store.get("sp-history", []);
+    list.unshift({ at: new Date().toISOString(), mode: "civics", score: `${qz.right}/${qz.items.length}` });
+    store.set("sp-history", list.slice(0, 50));
+    window.scrollTo({ top: 0 });
+  }
+
   // ---------- History ----------
   function saveHistory(fb) {
     const list = store.get("sp-history", []);
@@ -791,9 +1104,9 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
       const t = TOPICS.find((x) => x.id === h.topic);
       const li = el("li");
       li.append(
-        el("b", null, `${h.mode === "oral" ? "Speaking" : "Writing"} · ${t ? t.de : h.topic}`),
-        el("span", "lvl", h.level === "below A1" ? "< A1" : h.level),
-        el("span", null, `${fmt.format(new Date(h.at))} · target ${h.target}`),
+        el("b", null, `${MODE_LABEL[h.mode] || h.mode} · ${h.mode === "civics" || h.mode === "interview" ? "Kanton Zürich" : t ? t.de : h.topic}`),
+        el("span", "lvl", h.score || (h.level === "below A1" ? "< A1" : h.level)),
+        el("span", null, `${fmt.format(new Date(h.at))}${h.target ? " · target " + h.target : ""}`),
       );
       return li;
     }));
@@ -802,7 +1115,9 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   // ---------- Wiring ----------
   $("nav-home").onclick = () => { if (!state.busy) show("home"); };
   $("nav-history").onclick = () => { if (!state.busy) { renderHistory(); show("history"); } };
-  $("start-oral").onclick = startOral;
+  $("start-oral").onclick = () => startOral("oral");
+  $("start-interview").onclick = () => startOral("interview");
+  $("start-quiz").onclick = startQuiz;
   $("start-written").onclick = startWritten;
   $("send").onclick = sendAnswer;
   $("answer").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) sendAnswer(); });
@@ -811,7 +1126,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   $("text").addEventListener("input", updateWrittenUi);
   $("submit-text").onclick = getFeedback;
   $("new-task").onclick = () => { $("text").value = ""; loadTask(); };
-  $("again").onclick = () => (state.mode === "written" ? startWritten() : startOral());
+  $("again").onclick = () => (state.mode === "written" ? startWritten() : startOral(state.mode));
   $("to-home").onclick = () => show("home");
 
   $("retry-oral").onclick = () => { $("retry-oral").hidden = true; examinerTurn(); };
