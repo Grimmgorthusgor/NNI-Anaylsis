@@ -1,19 +1,21 @@
-<title>Sprechprobe</title>
+<title>Passbereit</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
 <style>
-/* Layout: one narrow column like an exam booklet; a sticky top bar, one view at a time. */
+/* Layout: one narrow column like an exam booklet; a sticky top bar, one view at a time. Swiss red marks the brand, never a federal look. */
 :root {
-  --paper: #F5F7F6;
+  --paper: #F6F6F7;
   --surface: #FFFFFF;
-  --ink: #142120;
-  --muted: #586664;
-  --line: #D6DEDC;
-  --accent: #0D6A62;
+  --ink: #1B1A1E;
+  --muted: #5E5C64;
+  --line: #DDDBE0;
+  --brand: #D52B1E;
+  --brand-ink: #FFFFFF;
+  --accent: #C4261B;
   --accent-ink: #FFFFFF;
-  --soft: #E3EFEC;
+  --soft: #FBEAE8;
   --mark: #FFE27A;
   --mark-ink: #332800;
   --good: #2C7A4C;
@@ -30,14 +32,14 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #0E1514; --surface: #162120; --ink: #E6EEEC; --muted: #9DADAA; --line: #2A3836;
-    --accent: #52B9AD; --accent-ink: #04201C; --soft: #1B2F2C; --mark: #5A4800; --mark-ink: #FFEBA8;
+    --paper: #141316; --surface: #1D1C20; --ink: #EDECEF; --muted: #A6A3AD; --line: #34323A;
+    --brand: #E0352A; --brand-ink: #FFFFFF; --accent: #FF7466; --accent-ink: #2A0703; --soft: #3A1E1C; --mark: #5A4800; --mark-ink: #FFEBA8;
     --good: #6CC690; --warn: #E7A64E; --bad: #F28B82; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #0E1514; --surface: #162120; --ink: #E6EEEC; --muted: #9DADAA; --line: #2A3836;
-  --accent: #52B9AD; --accent-ink: #04201C; --soft: #1B2F2C; --mark: #5A4800; --mark-ink: #FFEBA8;
+  --paper: #141316; --surface: #1D1C20; --ink: #EDECEF; --muted: #A6A3AD; --line: #34323A;
+  --brand: #E0352A; --brand-ink: #FFFFFF; --accent: #FF7466; --accent-ink: #2A0703; --soft: #3A1E1C; --mark: #5A4800; --mark-ink: #FFEBA8;
   --good: #6CC690; --warn: #E7A64E; --bad: #F28B82; color-scheme: dark;
 }
 [hidden] { display: none !important; }
@@ -59,7 +61,9 @@ button, select, textarea { font: inherit; color: inherit; }
   padding-block: 10px;
 }
 .bar-inner { max-width: 640px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.brand { display: flex; flex-direction: column; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand > div { display: flex; flex-direction: column; min-width: 0; }
+.logo { width: 36px; height: 36px; flex: none; }
 .brand b { font-family: var(--font-display); font-size: var(--step-1); }
 .brand span { font-size: var(--step--1); color: var(--muted); }
 .nav { display: flex; gap: 4px; }
@@ -161,7 +165,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
 
 <header class="bar">
   <div class="bar-inner">
-    <div class="brand"><b>Sprechprobe</b><span>Practice for the fide test · Deutsch</span></div>
+    <div class="brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="var(--brand)"/><path d="M17 15h30a7 7 0 0 1 7 7v15a7 7 0 0 1-7 7H31l-10 8v-8h-4a7 7 0 0 1-7-7V22a7 7 0 0 1 7-7z" fill="var(--brand-ink)"/><path d="M23 29.5l6.5 6.5L42 23" fill="none" stroke="var(--brand)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Passbereit</b><span>Einbürgerung · Deutsch B1 &amp; fide</span></div></div>
     <nav class="nav" aria-label="Sections">
       <button type="button" id="nav-home" aria-current="page">Practice</button>
       <button type="button" id="nav-history">History</button>
@@ -173,8 +177,9 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   <!-- Home -->
   <section class="view" id="view-home">
     <div class="field">
-      <h1>Get ready for your fide test</h1>
-      <p class="lede">Talk to an AI examiner about everyday life in Switzerland, or write a short message, then see your estimated level and what to fix.</p>
+      <span class="label">Swiss citizenship · Einbürgerung</span>
+      <h1>Deutsch für die Einbürgerung</h1>
+      <p class="lede">Practise the German you need for a Swiss passport: B1 speaking and A2 writing, in the format of the fide test. An AI examiner talks with you about everyday life in Switzerland, then shows your estimated level and what to fix.</p>
     </div>
 
     <div id="ai-missing" class="note alert" hidden>
@@ -182,7 +187,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     </div>
 
     <div class="field">
-      <span class="label" id="level-label">Target level</span>
+      <span class="label" id="level-label">Your goal</span>
       <div class="seg" role="group" aria-labelledby="level-label" id="levels"></div>
     </div>
 
@@ -215,6 +220,8 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
       </div>
       <p class="disclaimer">Sample feedback to show what you'll get. Your own results appear after a session.</p>
     </div>
+
+    <p class="disclaimer">The federal minimum for Swiss citizenship is B1 speaking and A2 writing; some cantons ask for more, so check with your canton. Passbereit is an independent practice app, not affiliated with the State Secretariat for Migration (SEM), the fide programme or any canton. Results here are estimates, not certificates.</p>
   </section>
 
   <!-- Speaking test -->
@@ -279,10 +286,11 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
 
 <script>
 (() => {
+  // Federal minimums: citizenship B1 spoken / A2 written; ordinary C permit A2 spoken / A1 written.
   const LEVELS = [
-    { id: "A1", note: "B permit" },
-    { id: "A2", note: "C permit" },
-    { id: "B1", note: "Citizenship" },
+    { id: "citizenship", label: "Citizenship", note: "B1 speaking · A2 writing", oral: "B1", written: "A2" },
+    { id: "cpermit", label: "C permit", note: "A2 speaking · A1 writing", oral: "A2", written: "A1" },
+    { id: "start", label: "Starting out", note: "A1", oral: "A1", written: "A1" },
   ];
   const LEVEL_HINT = {
     A1: "very short, simple sentences in the present tense and the most common everyday words; speak slowly and clearly",
@@ -312,7 +320,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
 
   const prefs = store.get("sp-prefs", {});
   const state = {
-    level: LEVELS.some((l) => l.id === prefs.level) ? prefs.level : "B1",
+    level: LEVELS.some((l) => l.id === prefs.level) ? prefs.level : "citizenship",
     topic: TOPICS.some((t) => t.id === prefs.topic) ? prefs.topic : "wohnen",
     lang: LANGS.includes(prefs.lang) ? prefs.lang : "English",
     mode: null,
@@ -326,6 +334,8 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   let sampleChecked = false;
 
   const topic = () => TOPICS.find((t) => t.id === state.topic);
+  const goal = () => LEVELS.find((l) => l.id === state.level) || LEVELS[0];
+  const cefr = () => (state.mode === "written" ? goal().written : goal().oral);
   const savePrefs = () => store.set("sp-prefs", { level: state.level, topic: state.topic, lang: state.lang });
 
   // ---------- Views ----------
@@ -344,7 +354,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
       const b = document.createElement("button");
       b.type = "button";
       b.setAttribute("aria-pressed", String(l.id === state.level));
-      b.append(l.id);
+      b.append(l.label);
       const s = document.createElement("small");
       s.textContent = l.note;
       b.append(s);
@@ -407,7 +417,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
       const voices = speechSynthesis.getVoices();
       u.voice = voices.find((v) => v.lang === "de-CH") || voices.find((v) => v.lang && v.lang.startsWith("de")) || null;
       u.lang = u.voice ? u.voice.lang : "de-DE";
-      u.rate = state.level === "B1" ? 0.95 : 0.85;
+      u.rate = cefr() === "B1" ? 0.95 : 0.85;
       speechSynthesis.speak(u);
     } catch { /* speech unavailable */ }
   }
@@ -416,11 +426,11 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   function oralRules() {
     const t = topic();
     return [
-      `You are role-playing the examiner in the oral part of the Swiss fide language test (German). The candidate is an adult immigrant living in Switzerland, practising for level ${state.level}.`,
+      `You are role-playing the examiner in the oral part of the Swiss fide language test (German). The candidate is an adult immigrant living in Switzerland, practising for level ${cefr()}.`,
       `Topic: ${t.de} (${t.seed}).`,
       "Rules:",
       "- Speak only Standard German (Hochdeutsch) in a Swiss everyday context (Franken, Gemeinde, SBB, Hausarzt, Kita). Use Swiss spelling: always 'ss', never 'ß'. Use 'Sie'.",
-      `- Match your language to level ${state.level}: ${LEVEL_HINT[state.level]}.`,
+      `- Match your language to level ${cefr()}: ${LEVEL_HINT[cefr()]}.`,
       "- Each turn: at most one short reaction and exactly one question or role-play prompt. Never more than 30 words.",
       "- Mix fide task types: questions about the candidate's own life and experience, and at some point a short role-play in a Swiss everyday situation where you play the other person (say who you are in one short sentence).",
       "- Never correct mistakes, never translate, never explain grammar. If the candidate writes in another language or does not understand, rephrase more simply in German.",
@@ -552,10 +562,10 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     updateWrittenUi();
     const t = topic();
     const prompt = [
-      `Create one writing task for the written part of the Swiss fide test (German), level ${state.level}, topic "${t.de}" (${t.seed}).`,
+      `Create one writing task for the written part of the Swiss fide test (German), level ${cefr()}, topic "${t.de}" (${t.seed}).`,
       "The candidate writes a short everyday message, e-mail or note in a realistic Swiss situation.",
       "Use simple Standard German with Swiss spelling (always 'ss', never 'ß').",
-      `Length: A1 20–30 Wörter, A2 30–50 Wörter, B1 60–80 Wörter. This task is ${state.level}.`,
+      `Length: A1 20–30 Wörter, A2 30–50 Wörter, B1 60–80 Wörter. This task is ${cefr()}.`,
       'Reply with only JSON: {"title": "short German title", "situation": "2-3 short German sentences: the situation and who to write to", "points": ["exactly 3 content points in German that the text must cover"], "words": "e.g. 30–50 Wörter"}',
     ].join("\n");
     try {
@@ -604,7 +614,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     state.mode = "written";
     $("text").value = "";
     $("written-title").textContent = `Schriftlich · ${topic().de}`;
-    $("written-level").textContent = state.level;
+    $("written-level").textContent = cefr();
     show("written");
     loadTask();
   }
@@ -615,7 +625,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     const shape = `{"level": "below A1" | "A1" | "A2" | "B1", "summary": "2 sentences", "criteria": [{"name": "criterion name", "score": 1-4, "comment": "one sentence"}], "corrections": [{"original": "the candidate's sentence, quoted exactly", "corrected": "the corrected German sentence", "changed": "only the words you changed, as they appear in corrected", "why": "short reason"}], "phrases": [{"de": "useful German phrase for this topic", "meaning": "translation"}], "next_step": "one concrete exercise for next time"}`;
     if (state.mode === "oral") {
       return [
-        `Assess a practice conversation for the oral part of the Swiss fide test (German). Target level: ${state.level}. Topic: ${t.de}.`,
+        `Assess a practice conversation for the oral part of the Swiss fide test (German). Target level: ${cefr()}. Topic: ${t.de}.`,
         "Assess ONLY the candidate's lines against the CEFR descriptors for spoken interaction and production (A1, A2, B1). Be honest and slightly conservative: this is practice, not an official result. If the candidate wrote very little, say so and rate accordingly.",
         "The answers were typed or dictated, so ignore spelling, capital letters and punctuation completely.",
         "Use exactly 4 criteria: task fulfilment, vocabulary, grammar, interaction.",
@@ -631,7 +641,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     }
     const task = state.task;
     return [
-      `Assess a practice text for the written part of the Swiss fide test (German). Target level: ${state.level}. Topic: ${t.de}.`,
+      `Assess a practice text for the written part of the Swiss fide test (German). Target level: ${cefr()}. Topic: ${t.de}.`,
       "Use the CEFR descriptors for written production (A1, A2, B1). Be honest and slightly conservative: this is practice, not an official result.",
       "Mention spelling only when it makes a word hard to understand.",
       "Use exactly 4 criteria: task fulfilment (were all content points covered?), vocabulary, grammar, text structure (greeting, closing, connectors).",
@@ -697,12 +707,12 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
     const out = $("result");
     const head = el("div", "block");
     head.append(
-      el("span", "label", `${state.mode === "oral" ? "Speaking" : "Writing"} · ${t.de} · target ${state.level}`),
+      el("span", "label", `${state.mode === "oral" ? "Speaking" : "Writing"} · ${t.de} · target ${cefr()}`),
       el("h2", null, `Estimated level: ${fb.level}`),
     );
     const ladder = el("div", "ladder");
     for (const r of RUNGS) {
-      const rung = el("div", "rung" + (r === fb.level ? " hit" : "") + (r === state.level ? " target" : ""), r === "below A1" ? "< A1" : r);
+      const rung = el("div", "rung" + (r === fb.level ? " hit" : "") + (r === cefr() ? " target" : ""), r === "below A1" ? "< A1" : r);
       ladder.append(rung);
     }
     const key = el("div", "ladder-key");
@@ -765,7 +775,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertic
   // ---------- History ----------
   function saveHistory(fb) {
     const list = store.get("sp-history", []);
-    list.unshift({ at: new Date().toISOString(), mode: state.mode, topic: state.topic, target: state.level, level: fb.level });
+    list.unshift({ at: new Date().toISOString(), mode: state.mode, topic: state.topic, target: cefr(), level: fb.level });
     store.set("sp-history", list.slice(0, 50));
   }
 
