@@ -1,0 +1,821 @@
+<title>Sprechprobe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+/* Layout: one narrow column like an exam booklet; a sticky top bar, one view at a time. */
+:root {
+  --paper: #F5F7F6;
+  --surface: #FFFFFF;
+  --ink: #142120;
+  --muted: #586664;
+  --line: #D6DEDC;
+  --accent: #0D6A62;
+  --accent-ink: #FFFFFF;
+  --soft: #E3EFEC;
+  --mark: #FFE27A;
+  --mark-ink: #332800;
+  --good: #2C7A4C;
+  --warn: #9A5B00;
+  --bad: #B3261E;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.2rem;
+  --step-2: 1.5rem;
+  --step-3: 2rem;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1514; --surface: #162120; --ink: #E6EEEC; --muted: #9DADAA; --line: #2A3836;
+    --accent: #52B9AD; --accent-ink: #04201C; --soft: #1B2F2C; --mark: #5A4800; --mark-ink: #FFEBA8;
+    --good: #6CC690; --warn: #E7A64E; --bad: #F28B82; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E1514; --surface: #162120; --ink: #E6EEEC; --muted: #9DADAA; --line: #2A3836;
+  --accent: #52B9AD; --accent-ink: #04201C; --soft: #1B2F2C; --mark: #5A4800; --mark-ink: #FFEBA8;
+  --good: #6CC690; --warn: #E7A64E; --bad: #F28B82; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { background: var(--paper); color: var(--ink); }
+body { font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: var(--step-3); }
+h2 { font-size: var(--step-2); }
+h3 { font-size: var(--step-1); }
+p { margin: 0; }
+button, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--paper); border-bottom: 1px solid var(--line);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px;
+}
+.bar-inner { max-width: 640px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; flex-direction: column; }
+.brand b { font-family: var(--font-display); font-size: var(--step-1); }
+.brand span { font-size: var(--step--1); color: var(--muted); }
+.nav { display: flex; gap: 4px; }
+.nav button { background: none; border: 1px solid transparent; border-radius: 999px; padding: 6px 12px; cursor: pointer; color: var(--muted); }
+.nav button[aria-current="page"] { border-color: var(--line); color: var(--ink); background: var(--surface); }
+
+main {
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.view { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.lede { color: var(--muted); max-width: 60ch; }
+.label { font-size: var(--step--1); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.field { display: flex; flex-direction: column; gap: 8px; }
+
+.seg { display: flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.seg button { flex: 1; border: 0; background: none; padding: 10px 8px; cursor: pointer; font-weight: 700; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.seg small { display: block; font-weight: 400; font-size: 0.75rem; opacity: 0.85; }
+
+.topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.topic { text-align: left; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 10px 12px; cursor: pointer; }
+.topic b { display: block; }
+.topic span { font-size: var(--step--1); color: var(--muted); }
+.topic[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--soft); }
+
+select { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 10px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); border-radius: var(--radius); padding: 12px 16px; font-weight: 700; cursor: pointer; }
+.btn.secondary { background: var(--surface); color: var(--accent); }
+.btn.ghost { background: none; border-color: var(--line); color: var(--ink); font-weight: 400; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.actions .btn.wide { flex: 1 1 200px; }
+
+.note { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; background: var(--surface); font-size: var(--step--1); color: var(--muted); }
+.note b { color: var(--ink); }
+.note.alert { border-color: var(--bad); color: var(--ink); }
+
+.session-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.pill { font-size: var(--step--1); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; background: var(--surface); white-space: nowrap; }
+
+.chat { display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 88%; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.msg .who { font-size: 0.75rem; color: var(--muted); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.msg .bubble { border-radius: 14px; padding: 10px 14px; overflow-wrap: anywhere; }
+.msg.examiner { align-self: flex-start; }
+.msg.examiner .bubble { background: var(--surface); border: 1px solid var(--line); border-top-left-radius: 4px; }
+.msg.you { align-self: flex-end; align-items: flex-end; }
+.msg.you .bubble { background: var(--soft); border-top-right-radius: 4px; }
+.listen { align-self: flex-start; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 2px 0; font-size: var(--step--1); font-weight: 700; }
+.thinking { color: var(--muted); font-style: italic; }
+
+.composer { display: flex; flex-direction: column; gap: 8px; }
+textarea { width: 100%; box-sizing: border-box; min-height: 96px; resize: vertical; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 12px; line-height: 1.5; }
+.composer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.count { font-size: var(--step--1); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.task { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.task ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+
+.ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.rung { border: 1px solid var(--line); border-radius: 6px; padding: 8px 4px; text-align: center; font-weight: 700; color: var(--muted); background: var(--surface); font-size: var(--step--1); }
+.rung.target { border-style: dashed; border-color: var(--accent); }
+.rung.hit { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.ladder-key { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.75rem; color: var(--muted); }
+
+.result { display: flex; flex-direction: column; gap: 18px; }
+.block { display: flex; flex-direction: column; gap: 10px; }
+.crit { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.crit p { grid-column: 1 / -1; color: var(--muted); font-size: var(--step--1); }
+.dots { display: flex; gap: 4px; align-items: center; }
+.dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--accent); }
+.dot.on { background: var(--accent); }
+.fix { border-left: 3px solid var(--line); padding: 4px 0 4px 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+.fix .orig { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--bad); }
+.fix .corr mark { background: var(--mark); color: var(--mark-ink); padding: 0 2px; border-radius: 3px; }
+.fix .why { font-size: var(--step--1); color: var(--muted); }
+.phrases { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.phrases li { display: flex; flex-direction: column; }
+.phrases li span { font-size: var(--step--1); color: var(--muted); }
+.disclaimer { font-size: 0.75rem; color: var(--muted); }
+
+.example { border: 1px dashed var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.tag { align-self: flex-start; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; color: var(--muted); }
+
+.history { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.history li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.history li span { font-size: var(--step--1); color: var(--muted); }
+.history .lvl { font-family: var(--font-display); font-size: var(--step-1); align-self: center; grid-row: 1 / span 2; grid-column: 2; }
+.empty { color: var(--muted); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .thinking { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: 0.45; } }
+}
+</style>
+
+<header class="bar">
+  <div class="bar-inner">
+    <div class="brand"><b>Sprechprobe</b><span>Practice for the fide test · Deutsch</span></div>
+    <nav class="nav" aria-label="Sections">
+      <button type="button" id="nav-home" aria-current="page">Practice</button>
+      <button type="button" id="nav-history">History</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- Home -->
+  <section class="view" id="view-home">
+    <div class="field">
+      <h1>Get ready for your fide test</h1>
+      <p class="lede">Talk to an AI examiner about everyday life in Switzerland, or write a short message, then see your estimated level and what to fix.</p>
+    </div>
+
+    <div id="ai-missing" class="note alert" hidden>
+      <b>The AI examiner isn't available here.</b> Open this page in the Claude app or on claude.ai while signed in, and allow it to use Claude when asked.
+    </div>
+
+    <div class="field">
+      <span class="label" id="level-label">Target level</span>
+      <div class="seg" role="group" aria-labelledby="level-label" id="levels"></div>
+    </div>
+
+    <div class="field">
+      <span class="label" id="topic-label">Topic</span>
+      <div class="topics" role="group" aria-labelledby="topic-label" id="topics"></div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="explain-lang">Explain my mistakes in</label>
+      <select id="explain-lang"></select>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn wide" id="start-oral">Start speaking test</button>
+      <button type="button" class="btn secondary wide" id="start-written">Start writing task</button>
+    </div>
+
+    <div class="note">
+      <b>Answer by voice:</b> add a German keyboard (Settings → General → Keyboard → Keyboards), switch to it in the answer box, then tap the keyboard's microphone and speak.
+    </div>
+
+    <div class="example" aria-label="Example of feedback">
+      <span class="tag">Example</span>
+      <h3>Wohnen · target B1 → estimated A2</h3>
+      <div class="fix">
+        <span class="orig">Ich habe gestern zu Vermieter angerufen.</span>
+        <span class="corr">Ich habe gestern <mark>den Vermieter</mark> angerufen.</span>
+        <span class="why">"anrufen" takes a direct object (Akkusativ), no "zu".</span>
+      </div>
+      <p class="disclaimer">Sample feedback to show what you'll get. Your own results appear after a session.</p>
+    </div>
+  </section>
+
+  <!-- Speaking test -->
+  <section class="view" id="view-oral" hidden>
+    <div class="session-head">
+      <h2 id="oral-title">Mündlich</h2>
+      <span class="pill" id="oral-count">Answer 0 of 6</span>
+    </div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="composer" id="composer">
+      <label class="label" for="answer">Your answer (German)</label>
+      <textarea id="answer" placeholder="Schreiben oder diktieren Sie Ihre Antwort …" lang="de"></textarea>
+      <div class="composer-row">
+        <button type="button" class="btn ghost" id="end-oral">End and get feedback</button>
+        <div class="actions">
+          <button type="button" class="btn ghost" id="stop-oral" hidden>Stop</button>
+          <button type="button" class="btn" id="send">Send</button>
+        </div>
+      </div>
+    </div>
+    <p class="note" id="oral-error" hidden></p>
+    <div class="actions"><button type="button" class="btn secondary" id="retry-oral" hidden>Try again</button></div>
+  </section>
+
+  <!-- Writing task -->
+  <section class="view" id="view-written" hidden>
+    <div class="session-head">
+      <h2 id="written-title">Schriftlich</h2>
+      <span class="pill" id="written-level">B1</span>
+    </div>
+    <div class="task" id="task"><p class="thinking">Preparing your task …</p></div>
+    <div class="composer">
+      <label class="label" for="text">Your text (German)</label>
+      <textarea id="text" style="min-height:180px" placeholder="Liebe Frau … / Sehr geehrte Damen und Herren …" lang="de"></textarea>
+      <div class="composer-row">
+        <span class="count" id="word-count">0 words</span>
+        <div class="actions">
+          <button type="button" class="btn ghost" id="new-task">Another task</button>
+          <button type="button" class="btn" id="submit-text">Get feedback</button>
+        </div>
+      </div>
+    </div>
+    <p class="note" id="written-error" hidden></p>
+  </section>
+
+  <!-- Feedback -->
+  <section class="view" id="view-feedback" hidden>
+    <div class="result" id="result"></div>
+    <div class="actions">
+      <button type="button" class="btn wide" id="again">Practise again</button>
+      <button type="button" class="btn ghost wide" id="to-home">Change topic or level</button>
+    </div>
+  </section>
+
+  <!-- History -->
+  <section class="view" id="view-history" hidden>
+    <h2>Your practice history</h2>
+    <p class="lede">Saved on this device only.</p>
+    <ul class="history" id="history"></ul>
+  </section>
+</main>
+
+<script>
+(() => {
+  const LEVELS = [
+    { id: "A1", note: "B permit" },
+    { id: "A2", note: "C permit" },
+    { id: "B1", note: "Citizenship" },
+  ];
+  const LEVEL_HINT = {
+    A1: "very short, simple sentences in the present tense and the most common everyday words; speak slowly and clearly",
+    A2: "short sentences about familiar everyday topics; Perfekt is fine; avoid idioms and long subordinate clauses",
+    B1: "natural everyday speech; ask for reasons, opinions, comparisons and short descriptions of past experiences",
+  };
+  const TOPICS = [
+    { id: "wohnen", de: "Wohnen", en: "Housing", seed: "Vermieterin oder Verwaltung, Nachbarn, Waschküche und Hausordnung, Reparaturen, Umzug" },
+    { id: "arbeit", de: "Arbeit", en: "Work", seed: "Arbeitsplatz, Kolleginnen, Arbeitszeiten, Stellensuche, RAV, Krankmeldung" },
+    { id: "gesundheit", de: "Gesundheit", en: "Health", seed: "Hausarzt, Termin vereinbaren, Apotheke, Krankenkasse, Notfall" },
+    { id: "kinder", de: "Kinder & Schule", en: "Children & school", seed: "Kita, Kindergarten, Elterngespräch, Schulweg, Ferien" },
+    { id: "gemeinde", de: "Gemeinde", en: "Local authorities", seed: "Einwohnerkontrolle, Anmeldung, Abfall und Gebührensack, Steuern, Formulare" },
+    { id: "einkaufen", de: "Einkaufen", en: "Shopping", seed: "Lebensmittel, Markt, Reklamation, Rückgabe, Preise in Franken" },
+    { id: "unterwegs", de: "Unterwegs", en: "Getting around", seed: "SBB, Halbtax, Billett, Verspätung, Bus und Tram, Velo" },
+    { id: "freizeit", de: "Freizeit", en: "Free time", seed: "Verein, Hobbys, Wochenende, Feste, Wandern, Nachbarschaft" },
+  ];
+  const LANGS = ["English", "Français", "Italiano", "Português", "Español", "Shqip", "Türkçe", "Українська", "العربية", "Tigrinya (ትግርኛ)", "Deutsch (einfach)"];
+  const MAX_ANSWERS = 6;
+  const MIN_ANSWERS = 2;
+  const RUNGS = ["below A1", "A1", "A2", "B1"];
+
+  const $ = (id) => document.getElementById(id);
+  const store = {
+    get(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; } },
+    set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage unavailable */ } },
+  };
+
+  const prefs = store.get("sp-prefs", {});
+  const state = {
+    level: LEVELS.some((l) => l.id === prefs.level) ? prefs.level : "B1",
+    topic: TOPICS.some((t) => t.id === prefs.topic) ? prefs.topic : "wohnen",
+    lang: LANGS.includes(prefs.lang) ? prefs.lang : "English",
+    mode: null,
+    turns: [],
+    answers: 0,
+    task: null,
+    busy: false,
+    ctl: null,
+  };
+  let sample = null;
+  let sampleChecked = false;
+
+  const topic = () => TOPICS.find((t) => t.id === state.topic);
+  const savePrefs = () => store.set("sp-prefs", { level: state.level, topic: state.topic, lang: state.lang });
+
+  // ---------- Views ----------
+  const VIEWS = ["home", "oral", "written", "feedback", "history"];
+  function show(name) {
+    for (const v of VIEWS) $("view-" + v).hidden = v !== name;
+    $("nav-home").setAttribute("aria-current", name === "history" ? "false" : "page");
+    $("nav-history").setAttribute("aria-current", name === "history" ? "page" : "false");
+    window.scrollTo({ top: 0 });
+  }
+
+  // ---------- Home ----------
+  function renderHome() {
+    const levels = $("levels");
+    levels.replaceChildren(...LEVELS.map((l) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(l.id === state.level));
+      b.append(l.id);
+      const s = document.createElement("small");
+      s.textContent = l.note;
+      b.append(s);
+      b.onclick = () => { state.level = l.id; savePrefs(); renderHome(); };
+      return b;
+    }));
+    const topics = $("topics");
+    topics.replaceChildren(...TOPICS.map((t) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "topic";
+      b.setAttribute("aria-pressed", String(t.id === state.topic));
+      const de = document.createElement("b");
+      de.textContent = t.de;
+      const en = document.createElement("span");
+      en.textContent = t.en;
+      b.append(de, en);
+      b.onclick = () => { state.topic = t.id; savePrefs(); renderHome(); };
+      return b;
+    }));
+    const sel = $("explain-lang");
+    if (!sel.options.length) {
+      for (const l of LANGS) sel.add(new Option(l, l));
+      sel.onchange = () => { state.lang = sel.value; savePrefs(); };
+    }
+    sel.value = state.lang;
+  }
+
+  function setAiAvailable(ok) {
+    $("ai-missing").hidden = ok;
+    $("start-oral").disabled = !ok;
+    $("start-written").disabled = !ok;
+  }
+
+  // ---------- Errors ----------
+  function errorCopy(e) {
+    switch (e && e.code) {
+      case "not_granted":
+      case "sampling_disabled":
+      case "not_declared":
+      case "capability_disabled":
+      case "capability_removed":
+        setAiAvailable(false);
+        return "This page isn't allowed to use Claude, so the examiner can't answer. Reload and choose Allow to try again.";
+      case "rate_limited": return "Too many requests right now. Wait a minute, then try again.";
+      case "session_expired": return "You've been signed out. Sign in to Claude again, then try again.";
+      case "refused": return "The examiner couldn't answer that. Rephrase your answer and send it again.";
+      case "invalid_json": return "The feedback came back incomplete. Tap the button again to retry.";
+      default: return "The connection to the examiner dropped. Tap the button again to retry.";
+    }
+  }
+
+  // ---------- Speech output ----------
+  const canSpeak = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+  function speak(text) {
+    if (!canSpeak) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const voices = speechSynthesis.getVoices();
+      u.voice = voices.find((v) => v.lang === "de-CH") || voices.find((v) => v.lang && v.lang.startsWith("de")) || null;
+      u.lang = u.voice ? u.voice.lang : "de-DE";
+      u.rate = state.level === "B1" ? 0.95 : 0.85;
+      speechSynthesis.speak(u);
+    } catch { /* speech unavailable */ }
+  }
+
+  // ---------- Speaking test ----------
+  function oralRules() {
+    const t = topic();
+    return [
+      `You are role-playing the examiner in the oral part of the Swiss fide language test (German). The candidate is an adult immigrant living in Switzerland, practising for level ${state.level}.`,
+      `Topic: ${t.de} (${t.seed}).`,
+      "Rules:",
+      "- Speak only Standard German (Hochdeutsch) in a Swiss everyday context (Franken, Gemeinde, SBB, Hausarzt, Kita). Use Swiss spelling: always 'ss', never 'ß'. Use 'Sie'.",
+      `- Match your language to level ${state.level}: ${LEVEL_HINT[state.level]}.`,
+      "- Each turn: at most one short reaction and exactly one question or role-play prompt. Never more than 30 words.",
+      "- Mix fide task types: questions about the candidate's own life and experience, and at some point a short role-play in a Swiss everyday situation where you play the other person (say who you are in one short sentence).",
+      "- Never correct mistakes, never translate, never explain grammar. If the candidate writes in another language or does not understand, rephrase more simply in German.",
+      "- Answers are typed or dictated: ignore spelling and punctuation.",
+      "- Reply with the examiner's spoken words only: no labels, no quotation marks, no stage directions.",
+    ].join("\n");
+  }
+
+  function addMessage(role, text) {
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + (role === "assistant" ? "examiner" : "you");
+    const who = document.createElement("span");
+    who.className = "who";
+    who.textContent = role === "assistant" ? "Examiner" : "You";
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.lang = "de";
+    bubble.textContent = text;
+    wrap.append(who, bubble);
+    if (role === "assistant" && canSpeak) {
+      const listen = document.createElement("button");
+      listen.type = "button";
+      listen.className = "listen";
+      listen.textContent = "Listen";
+      listen.onclick = () => speak(bubble.textContent);
+      wrap.append(listen);
+    }
+    $("chat").append(wrap);
+    return bubble;
+  }
+
+  function updateOralUi() {
+    $("oral-count").textContent = `Answer ${state.answers} of ${MAX_ANSWERS}`;
+    const finished = state.answers >= MAX_ANSWERS;
+    $("send").disabled = state.busy || finished;
+    $("answer").disabled = state.busy || finished;
+    $("end-oral").disabled = state.busy || state.answers < MIN_ANSWERS;
+    $("end-oral").textContent = finished ? "Get my feedback" : "End and get feedback";
+    if (finished) $("end-oral").className = "btn";
+    else $("end-oral").className = "btn ghost";
+    $("stop-oral").hidden = !state.busy;
+  }
+
+  async function examinerTurn() {
+    state.busy = true;
+    $("oral-error").hidden = true;
+    updateOralUi();
+    const bubble = addMessage("assistant", "");
+    bubble.classList.add("thinking");
+    bubble.textContent = "Thinking …";
+    state.ctl = new AbortController();
+    try {
+      const { text } = await sample(state.turns, {
+        modelTier: "quick",
+        cache: false,
+        signal: state.ctl.signal,
+        onText: ({ text }) => { bubble.classList.remove("thinking"); bubble.textContent = text; },
+      });
+      bubble.classList.remove("thinking");
+      bubble.textContent = text.trim();
+      state.turns.push({ role: "assistant", content: text.trim() });
+    } catch (e) {
+      bubble.parentElement.remove();
+      // Put an unanswered answer back in the box so it can be sent again.
+      if (state.turns.length > 1 && state.turns[state.turns.length - 1].role === "user") {
+        const last = state.turns.pop();
+        state.answers -= 1;
+        $("answer").value = stripNote(last.content);
+        $("chat").lastElementChild?.remove();
+      }
+      if (e && e.code !== "cancelled") {
+        $("oral-error").textContent = errorCopy(e);
+        $("oral-error").hidden = false;
+      }
+      $("retry-oral").hidden = state.turns.length !== 1;
+    } finally {
+      state.busy = false;
+      state.ctl = null;
+      updateOralUi();
+      if (state.answers < MAX_ANSWERS) $("answer").focus({ preventScroll: true });
+    }
+  }
+
+  const LAST_NOTE = "\n\n(This was the candidate's last answer. Close the conversation politely in one or two short sentences, without a question.)";
+  const stripNote = (s) => s.endsWith(LAST_NOTE) ? s.slice(0, -LAST_NOTE.length) : s;
+
+  function aiReady() {
+    if (sample) return true;
+    if (sampleChecked) setAiAvailable(false);
+    return false;
+  }
+
+  function startOral() {
+    if (!aiReady()) return;
+    state.mode = "oral";
+    $("retry-oral").hidden = true;
+    $("oral-error").hidden = true;
+    state.answers = 0;
+    $("chat").replaceChildren();
+    $("answer").value = "";
+    $("oral-title").textContent = `Mündlich · ${topic().de}`;
+    state.turns = [{ role: "user", content: oralRules() + "\n\nStart now: greet the candidate briefly and ask the first question." }];
+    show("oral");
+    examinerTurn();
+  }
+
+  function sendAnswer() {
+    const text = $("answer").value.trim();
+    if (!text || state.busy || state.answers >= MAX_ANSWERS) return;
+    state.answers += 1;
+    addMessage("user", text);
+    $("answer").value = "";
+    state.turns.push({ role: "user", content: state.answers >= MAX_ANSWERS ? text + LAST_NOTE : text });
+    examinerTurn();
+  }
+
+  function transcript() {
+    return state.turns.slice(1)
+      .map((t) => (t.role === "assistant" ? "Examiner: " : "Candidate: ") + stripNote(t.content))
+      .join("\n");
+  }
+
+  // ---------- Writing task ----------
+  async function loadTask() {
+    state.task = null;
+    state.busy = true;
+    $("written-error").hidden = true;
+    $("task").replaceChildren(Object.assign(document.createElement("p"), { className: "thinking", textContent: "Preparing your task …" }));
+    updateWrittenUi();
+    const t = topic();
+    const prompt = [
+      `Create one writing task for the written part of the Swiss fide test (German), level ${state.level}, topic "${t.de}" (${t.seed}).`,
+      "The candidate writes a short everyday message, e-mail or note in a realistic Swiss situation.",
+      "Use simple Standard German with Swiss spelling (always 'ss', never 'ß').",
+      `Length: A1 20–30 Wörter, A2 30–50 Wörter, B1 60–80 Wörter. This task is ${state.level}.`,
+      'Reply with only JSON: {"title": "short German title", "situation": "2-3 short German sentences: the situation and who to write to", "points": ["exactly 3 content points in German that the text must cover"], "words": "e.g. 30–50 Wörter"}',
+    ].join("\n");
+    try {
+      const task = await sample.json(prompt, { cache: false });
+      if (!task || typeof task.situation !== "string" || !Array.isArray(task.points)) throw { code: "invalid_json" };
+      state.task = task;
+      renderTask();
+    } catch (e) {
+      $("task").replaceChildren();
+      $("written-error").textContent = e && e.code === "invalid_json" ? "The task came back incomplete. Tap Another task to retry." : errorCopy(e);
+      $("written-error").hidden = false;
+    } finally {
+      state.busy = false;
+      updateWrittenUi();
+    }
+  }
+
+  function renderTask() {
+    const t = state.task;
+    const box = $("task");
+    const h = document.createElement("h3");
+    h.lang = "de";
+    h.textContent = t.title || "Schreibaufgabe";
+    const p = document.createElement("p");
+    p.lang = "de";
+    p.textContent = t.situation;
+    const ul = document.createElement("ul");
+    ul.lang = "de";
+    for (const pt of t.points.slice(0, 4)) ul.append(Object.assign(document.createElement("li"), { textContent: String(pt) }));
+    const len = document.createElement("p");
+    len.className = "count";
+    len.textContent = "Length: " + (t.words || "");
+    box.replaceChildren(h, p, ul, len);
+  }
+
+  const wordCount = (s) => (s.trim().match(/\S+/g) || []).length;
+  function updateWrittenUi() {
+    const n = wordCount($("text").value);
+    $("word-count").textContent = n === 1 ? "1 word" : `${n} words`;
+    $("submit-text").disabled = state.busy || !state.task || n < 5;
+    $("new-task").disabled = state.busy;
+  }
+
+  function startWritten() {
+    if (!aiReady()) return;
+    state.mode = "written";
+    $("text").value = "";
+    $("written-title").textContent = `Schriftlich · ${topic().de}`;
+    $("written-level").textContent = state.level;
+    show("written");
+    loadTask();
+  }
+
+  // ---------- Feedback ----------
+  function feedbackPrompt() {
+    const t = topic();
+    const shape = `{"level": "below A1" | "A1" | "A2" | "B1", "summary": "2 sentences", "criteria": [{"name": "criterion name", "score": 1-4, "comment": "one sentence"}], "corrections": [{"original": "the candidate's sentence, quoted exactly", "corrected": "the corrected German sentence", "changed": "only the words you changed, as they appear in corrected", "why": "short reason"}], "phrases": [{"de": "useful German phrase for this topic", "meaning": "translation"}], "next_step": "one concrete exercise for next time"}`;
+    if (state.mode === "oral") {
+      return [
+        `Assess a practice conversation for the oral part of the Swiss fide test (German). Target level: ${state.level}. Topic: ${t.de}.`,
+        "Assess ONLY the candidate's lines against the CEFR descriptors for spoken interaction and production (A1, A2, B1). Be honest and slightly conservative: this is practice, not an official result. If the candidate wrote very little, say so and rate accordingly.",
+        "The answers were typed or dictated, so ignore spelling, capital letters and punctuation completely.",
+        "Use exactly 4 criteria: task fulfilment, vocabulary, grammar, interaction.",
+        `Write the summary, criteria names, comments, reasons, meanings and next step in ${state.lang}. Keep German sentences in German.`,
+        "Give up to 4 corrections (the most useful ones; an empty list if there were no real errors) and 4 phrases.",
+        "",
+        "Transcript:",
+        transcript(),
+        "",
+        "Reply with only JSON of this shape:",
+        shape,
+      ].join("\n");
+    }
+    const task = state.task;
+    return [
+      `Assess a practice text for the written part of the Swiss fide test (German). Target level: ${state.level}. Topic: ${t.de}.`,
+      "Use the CEFR descriptors for written production (A1, A2, B1). Be honest and slightly conservative: this is practice, not an official result.",
+      "Mention spelling only when it makes a word hard to understand.",
+      "Use exactly 4 criteria: task fulfilment (were all content points covered?), vocabulary, grammar, text structure (greeting, closing, connectors).",
+      `Write the summary, criteria names, comments, reasons, meanings and next step in ${state.lang}. Keep German sentences in German.`,
+      "Give up to 5 corrections (the most useful ones; an empty list if there were no real errors) and 4 phrases.",
+      "",
+      `Task: ${task.title || ""}. ${task.situation}`,
+      "Content points: " + task.points.join(" | "),
+      `Required length: ${task.words || ""}`,
+      "",
+      "Candidate's text:",
+      $("text").value.trim(),
+      "",
+      "Reply with only JSON of this shape:",
+      shape,
+    ].join("\n");
+  }
+
+  async function getFeedback() {
+    if (state.busy) return;
+    state.busy = true;
+    const errBox = state.mode === "oral" ? $("oral-error") : $("written-error");
+    errBox.hidden = true;
+    const btn = state.mode === "oral" ? $("end-oral") : $("submit-text");
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Assessing …";
+    if (state.mode === "oral") { $("send").disabled = true; $("answer").disabled = true; }
+    try {
+      const fb = await sample.json(feedbackPrompt(), { cache: false });
+      if (!fb || !RUNGS.includes(fb.level)) throw { code: "invalid_json" };
+      renderFeedback(fb);
+      saveHistory(fb);
+      show("feedback");
+    } catch (e) {
+      errBox.textContent = errorCopy(e);
+      errBox.hidden = false;
+    } finally {
+      state.busy = false;
+      btn.textContent = label;
+      if (state.mode === "oral") updateOralUi(); else updateWrittenUi();
+    }
+  }
+
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = String(text);
+    return n;
+  }
+
+  function markChanged(corrected, changed) {
+    const span = el("span", "corr");
+    span.lang = "de";
+    const i = changed ? corrected.indexOf(changed) : -1;
+    if (i < 0) { span.textContent = corrected; return span; }
+    span.append(corrected.slice(0, i), el("mark", null, changed), corrected.slice(i + changed.length));
+    return span;
+  }
+
+  function renderFeedback(fb) {
+    const t = topic();
+    const out = $("result");
+    const head = el("div", "block");
+    head.append(
+      el("span", "label", `${state.mode === "oral" ? "Speaking" : "Writing"} · ${t.de} · target ${state.level}`),
+      el("h2", null, `Estimated level: ${fb.level}`),
+    );
+    const ladder = el("div", "ladder");
+    for (const r of RUNGS) {
+      const rung = el("div", "rung" + (r === fb.level ? " hit" : "") + (r === state.level ? " target" : ""), r === "below A1" ? "< A1" : r);
+      ladder.append(rung);
+    }
+    const key = el("div", "ladder-key");
+    key.append(el("span", null, "Filled: your estimate"), el("span", null, "Dashed: your target"));
+    head.append(ladder, key);
+    if (fb.summary) head.append(el("p", null, fb.summary));
+    out.replaceChildren(head);
+
+    if (Array.isArray(fb.criteria) && fb.criteria.length) {
+      const b = el("div", "block");
+      b.append(el("h3", null, "Criteria"));
+      for (const c of fb.criteria.slice(0, 4)) {
+        const row = el("div", "crit");
+        const score = Math.max(0, Math.min(4, Math.round(Number(c.score) || 0)));
+        const dots = el("div", "dots");
+        dots.setAttribute("aria-label", `${score} of 4`);
+        for (let i = 1; i <= 4; i++) dots.append(el("span", "dot" + (i <= score ? " on" : "")));
+        row.append(el("b", null, c.name || ""), dots, el("p", null, c.comment || ""));
+        b.append(row);
+      }
+      out.append(b);
+    }
+
+    const fixes = Array.isArray(fb.corrections) ? fb.corrections.filter((c) => c && c.corrected) : [];
+    const fb2 = el("div", "block");
+    fb2.append(el("h3", null, "Corrections"));
+    if (!fixes.length) fb2.append(el("p", "empty", "No real errors found in this session."));
+    for (const c of fixes.slice(0, 5)) {
+      const f = el("div", "fix");
+      const orig = el("span", "orig", c.original || "");
+      orig.lang = "de";
+      f.append(orig, markChanged(String(c.corrected), c.changed ? String(c.changed) : ""), el("span", "why", c.why || ""));
+      fb2.append(f);
+    }
+    out.append(fb2);
+
+    if (Array.isArray(fb.phrases) && fb.phrases.length) {
+      const b = el("div", "block");
+      b.append(el("h3", null, "Useful phrases"));
+      const ul = el("ul", "phrases");
+      for (const p of fb.phrases.slice(0, 5)) {
+        const li = el("li");
+        const de = el("b", null, p.de || "");
+        de.lang = "de";
+        li.append(de, el("span", null, p.meaning || ""));
+        ul.append(li);
+      }
+      b.append(ul);
+      out.append(b);
+    }
+
+    if (fb.next_step) {
+      const b = el("div", "block");
+      b.append(el("h3", null, "Next time"), el("p", null, fb.next_step));
+      out.append(b);
+    }
+    out.append(el("p", "disclaimer", "Practice estimate generated by AI. It is not an official fide result."));
+  }
+
+  // ---------- History ----------
+  function saveHistory(fb) {
+    const list = store.get("sp-history", []);
+    list.unshift({ at: new Date().toISOString(), mode: state.mode, topic: state.topic, target: state.level, level: fb.level });
+    store.set("sp-history", list.slice(0, 50));
+  }
+
+  function renderHistory() {
+    const list = store.get("sp-history", []);
+    const ul = $("history");
+    if (!list.length) {
+      ul.replaceChildren(el("li", "empty", "No sessions yet. Finish a speaking test or writing task to see it here."));
+      return;
+    }
+    const fmt = new Intl.DateTimeFormat("de-CH", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    ul.replaceChildren(...list.map((h) => {
+      const t = TOPICS.find((x) => x.id === h.topic);
+      const li = el("li");
+      li.append(
+        el("b", null, `${h.mode === "oral" ? "Speaking" : "Writing"} · ${t ? t.de : h.topic}`),
+        el("span", "lvl", h.level === "below A1" ? "< A1" : h.level),
+        el("span", null, `${fmt.format(new Date(h.at))} · target ${h.target}`),
+      );
+      return li;
+    }));
+  }
+
+  // ---------- Wiring ----------
+  $("nav-home").onclick = () => { if (!state.busy) show("home"); };
+  $("nav-history").onclick = () => { if (!state.busy) { renderHistory(); show("history"); } };
+  $("start-oral").onclick = startOral;
+  $("start-written").onclick = startWritten;
+  $("send").onclick = sendAnswer;
+  $("answer").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) sendAnswer(); });
+  $("stop-oral").onclick = () => state.ctl?.abort();
+  $("end-oral").onclick = getFeedback;
+  $("text").addEventListener("input", updateWrittenUi);
+  $("submit-text").onclick = getFeedback;
+  $("new-task").onclick = () => { $("text").value = ""; loadTask(); };
+  $("again").onclick = () => (state.mode === "written" ? startWritten() : startOral());
+  $("to-home").onclick = () => show("home");
+
+  $("retry-oral").onclick = () => { $("retry-oral").hidden = true; examinerTurn(); };
+
+  renderHome();
+  setAiAvailable(true);
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("sample").then(
+      (s) => { sample = s; sampleChecked = true; setAiAvailable(!!s); },
+      () => { sampleChecked = true; setAiAvailable(false); },
+    );
+  } else {
+    sampleChecked = true;
+    setAiAvailable(false);
+  }
+})();
+</script>
